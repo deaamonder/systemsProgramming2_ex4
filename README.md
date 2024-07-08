@@ -51,8 +51,9 @@ int main() {
     return 0;
 }
 
-Dependencies
+## 'Dependencies'
 SFML (Simple and Fast Multimedia Library) for graphical visualization in Demo.cpp.
-Building
+
+## 'Building'
 To build the demo (Demo.cpp), ensure SFML is installed and linked correctly in your build environment. For unit tests (test.cpp), include the doctest header and link with your testing framework.
 
