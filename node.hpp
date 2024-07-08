@@ -1,3 +1,6 @@
+#ifndef NODE_HPP
+#define NODE_HPP
+
 #include <iostream>
 #include <vector>
 
@@ -5,22 +8,15 @@ using namespace std;
 
 template <typename T>
 class Node {
-private:
-    T value;
-    vector<Node<T>*> nodes; // pointer to the node children
-
 public:
-    Node(T val) : value(val) {}
+    T value;
+    vector<Node<T>*> children;
 
-    T get_value() {
-        return value;
-    }
+    Node(const T& value) : value(value), children() {}
 
-    void add_child(Node<T>* child) {
-        nodes.push_back(child);
-    }
-
-    vector<Node<T>*> get_children() {
-        return nodes;
-    }
+    T get_value() const { return value; }
+    void add_child(Node<T>* child) { children.push_back(child); }
+    vector<Node<T>*> get_children() {return children;}
 };
+
+#endif // NODE_HPP
