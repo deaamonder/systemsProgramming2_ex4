@@ -49,39 +49,4 @@ int main() {
     }
     
     return 0;
-}.
-
-Dependencies
-SFML Library
-Usage: SFML (Simple and Fast Multimedia Library) is used for rendering graphics and handling events in the graphical user interface (GUI).
-Installation: You can download SFML from SFML website and follow the installation instructions for your operating system.
-Include Path: Make sure to include the SFML headers in your project. For example, if SFML is installed in a standard location, you might include headers like <SFML/Graphics.hpp> for graphics functionalities.
-Building
-Building with CMake
-
-CMakeLists.txt: Create a CMakeLists.txt file in your project directory to configure the build process.
-cmake_minimum_required(VERSION 3.0)
-project(YourProjectName)
-
-# Locate SFML
-set(SFML_DIR "/path/to/SFML/cmake/modules")
-find_package(SFML 2.5 COMPONENTS graphics REQUIRED)
-
-# Add your executable
-add_executable(YourExecutableName main.cpp Demo.cpp test.cpp)
-
-# Link SFML libraries
-target_link_libraries(YourExecutableName sfml-graphics)
-
-Compiling
-
-Compilation Command: Use CMake to generate build files (e.g., Makefile for Unix-like systems, Visual Studio project for Windows).
-mkdir build
-cd build
-cmake ..
-cmake --build .
-
-Running
-
-Execute the Binary: After building successfully, you can run your executable.
-./demo ./test
+}
