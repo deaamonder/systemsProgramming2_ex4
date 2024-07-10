@@ -6,21 +6,31 @@
 #include <stack>
 #include <stdexcept>
 #include <iostream>
+#include <functional>
 
 using namespace std;
 
 template <typename T, size_t K = 2>
 class Tree {
 private:
-    Node<T>* root;
+    Node<T>* root; //poitner to the root of the tree
 
-    void deleteTree(Node<T>* node);
+    void deleteTree(Node<T>* node); // function to delete the tree recursivley 
 public:
     Tree() : root(nullptr) {}
     ~Tree() { deleteTree(root); }
 
+    /*
+     * function to add (set) the root of tree. 
+     */
     void add_root(const Node<T>& node);
+    /*
+     * function to add a sub node to some node in the tree. 
+     */
     void add_sub_node(const Node<T>& parent, const Node<T>& node);
+    /*
+    * root getter 
+    */
     Node<T>* get_root(){return root;}
 
     //defining iterators
@@ -29,6 +39,7 @@ public:
     class InOrderIterator;
     class bfsIterator;
     class dfsIterator;
+    class MinHeapIterator;
 
     //begin-end function for pre/in/post order and bfs dfs.
     PreOrderIterator begin_pre_order() { return PreOrderIterator(root); }
@@ -41,6 +52,7 @@ public:
     bfsIterator end_bfs_scan() { return bfsIterator(nullptr); }
     dfsIterator begin_dfs_scan() { return dfsIterator(root); }
     dfsIterator end_dfs_scan() { return dfsIterator(nullptr); }
+    MinHeapIterator myHeap() { return MinHeapIterator(root); }
 
     // friend ostream& operator<<(ostream& os, const Tree<T, K>& tree) {
     //     return os;
@@ -102,21 +114,20 @@ template <typename T, size_t K>
 class Tree<T, K>::PreOrderIterator {
 private:
     Node<T>* node;
-    stack<Node<T>*> nodesStack;
-
+    stack<Node<T>*> nodesStack; //impleminting the pre order iterator using stack data structure
+    /*
+    * private function to add nodes in the pre order way (root-left-right).
+    */
     void preOrder(Node<T>* node);
 public:
     PreOrderIterator(Node<T>* root);
-
+    //operators
     PreOrderIterator& operator++();
     Node<T>* operator*();
     bool operator!=(const PreOrderIterator& other);
 };
 
 //implemnting PreOrderIterator function
-/*
-* constructor
-*/
 template <typename T, size_t K>
 Tree<T, K>::PreOrderIterator::PreOrderIterator(Node<T>* root) : node(nullptr) {
     if (root) preOrder(root);
@@ -163,12 +174,14 @@ template <typename T, size_t K>
 class Tree<T, K>::PostOrderIterator {
 private:
     Node<T>* node;
-    stack<Node<T>*> nodesStack;
-
+    stack<Node<T>*> nodesStack;//as the pre order iterator also here i used stack
+    /*
+    * private function to add nodes in the post order way (left-right-root).
+    */
     void postOrder(Node<T>* node);
 public:
     PostOrderIterator(Node<T>* root);
-
+    //operators
     PostOrderIterator& operator++();
     Node<T>* operator*();
     bool operator!=(const PostOrderIterator& other);
@@ -219,12 +232,14 @@ template <typename T, size_t K>
 class Tree<T, K>::InOrderIterator {
 private:
     Node<T>* node;
-    stack<Node<T>*> nodesStack;
-
+    stack<Node<T>*> nodesStack;//as the pre/post order i used stack here
+    /*
+    * private function to add nodes in the in order way (left-root-right).
+    */
     void inOrder(Node<T>* node);
 public:
     InOrderIterator(Node<T>* root);
-
+    //operators
     InOrderIterator& operator++();
     Node<T>* operator*();
     bool operator!=(const InOrderIterator& other);
@@ -276,11 +291,11 @@ template <typename T, size_t K>
 class Tree<T, K>::bfsIterator {
 private:
     Node<T>* node;
-    queue<Node<T>*> nodesQueue;
+    queue<Node<T>*> nodesQueue;//in the bfs iterator I used the queue data structure 
 
 public:
     bfsIterator(Node<T>* root);
-
+    //operators
     bfsIterator& operator++();
     Node<T>* operator*();
     bool operator!=(const bfsIterator& other);
@@ -330,11 +345,11 @@ template <typename T, size_t K>
 class Tree<T, K>::dfsIterator {
 private:
     Node<T>* node;
-    stack<Node<T>*> nodesStack;
+    stack<Node<T>*> nodesStack;//in the dfs I used the stack data structure
 
 public:
     dfsIterator(Node<T>* root);
-
+    //operators
     dfsIterator& operator++();
     Node<T>* operator*();
     bool operator!=(const dfsIterator& other);
@@ -370,6 +385,66 @@ Node<T>* Tree<T, K>::dfsIterator::operator*() {
 
 template <typename T, size_t K>
 bool Tree<T, K>::dfsIterator::operator!=(const dfsIterator& other) {
+    return node != other.node;
+}
+
+// MinHeapIterator class
+template <typename T, size_t K>
+class Tree<T, K>::MinHeapIterator {
+private:
+    Node<T>* node;
+    //using preority queue 
+    priority_queue<Node<T>*, vector<Node<T>*>, function<bool(Node<T>*, Node<T>*)>> minHeap;
+
+public:
+    MinHeapIterator(Node<T>* root);
+    //operators
+    MinHeapIterator& operator++();
+    Node<T>* operator*();
+    bool operator!=(const MinHeapIterator& other);
+};
+
+/**
+ * in the constructor of the min heap iterator i used a lambda function(anonymous function)
+ * which is basicly compare between the "left-hand" side node and the "right-hand"
+ * side node .
+ */
+template <typename T, size_t K>
+Tree<T, K>::MinHeapIterator::MinHeapIterator(Node<T>* root) : node(nullptr), minHeap([](Node<T>* lhs, Node<T>* rhs) {
+    return lhs->value > rhs->value;
+}) {
+    if (root) minHeap.push(root);
+    if (!minHeap.empty()) {
+        node = minHeap.top();
+        minHeap.pop();
+    }
+}
+
+template <typename T, size_t K>
+typename Tree<T, K>::MinHeapIterator& Tree<T, K>::MinHeapIterator::operator++() {
+    if (!minHeap.empty()) {
+        for (auto child : node->children) {
+            if (child) minHeap.push(child);
+        }
+        if (!minHeap.empty()) {
+            node = minHeap.top();
+            minHeap.pop();
+        } else {
+            node = nullptr;
+        }
+    } else {
+        node = nullptr;
+    }
+    return *this;
+}
+
+template <typename T, size_t K>
+Node<T>* Tree<T, K>::MinHeapIterator::operator*() {
+    return node;
+}
+
+template <typename T, size_t K>
+bool Tree<T, K>::MinHeapIterator::operator!=(const MinHeapIterator& other) {
     return node != other.node;
 }
 
